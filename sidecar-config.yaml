@@ -16,7 +16,7 @@ healthchecks:
     code: 200
 
 commands:
-  - cmd: [ "python", "-u", "app.py" ]
+  - cmd: [ "java", "-jar", "app.jar" ]
     on_exit: terminate
 
 log_level: debug
