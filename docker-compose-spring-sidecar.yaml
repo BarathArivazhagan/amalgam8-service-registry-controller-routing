@@ -1,6 +1,24 @@
 
+gateway:
+  image: amalgam8/a8-sidecar:latest
+  environment:
+    - A8_CONTROLLER_URL=http://controller:8080
+    - A8_REGISTRY_URL=http://registry:8080
+    - A8_PROXY=true
+    - A8_LOG=true
+    - A8_SERVICE=gateway:version=none
+    - A8_ELASTICSEARCH_SERVER=elasticsearch:9200
+    - A8_CONTROLLER_POLL=5s
+    - A8_REGISTRY_POLL=5s
+  ports:
+    - "32000:6379"
+  external_links:
+    - elasticsearch
+    - controller
+    - registry
+
 spring-sidecar-v1:
-  image: spring-sidecar-ap
+  image: spring-sidecar-app
   environment:
     - A8_REGISTRY_URL=http://registry:8080
     - A8_SERVICE=spring:version=v1
@@ -8,3 +26,39 @@ spring-sidecar-v1:
     - A8_ENDPOINT_PORT=9005
   external_links:
     - registry
+order-app:
+  image: rabbitmq-order-app
+  ports:
+    - "9056:9056"
+  environment:
+    - A8_REGISTRY_URL=http://registry:8080
+    - A8_SERVICE= order:version=v1
+    - A8_ENDPOINT_PORT=9056
+    - A8_REGISTER=true
+    - SPRING_RABBITMQ_HOST=rabbitmq
+    - SPRING_RABBITMQ_PORT=5672
+    - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/microservices
+    - SPRING_DATASOURCE_USERNAME=root
+    - SPRING_DATASOURCE_PASSWORD=root
+  external_links:
+    - registry
+    - mysql
+    - rabbitmq
+inventory-app:
+  image: rabbitmq-inventory-app
+  ports: 
+    - "9055:9055"
+  environment:
+    - A8_REGISTRY_URL=http://registry:8080
+    - A8_SERVICE=inventory:version=v1
+    - A8_ENDPOINT_PORT=9055
+    - A8_REGISTER=true
+    - SPRING_RABBITMQ_HOST=rabbitmq
+    - SPRING_RABBITMQ_PORT=5672
+    - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/microservices
+    - SPRING_DATASOURCE_USERNAME=root
+    - SPRING_DATASOURCE_PASSWORD=root
+  external_links:
+    - registry
+    - rabbitmq
+    - mysql
